@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F4F5F1"/>
+      <stop offset="35%" stop-color="#CFE3E0"/>
+      <stop offset="70%" stop-color="#6C9BA4"/>
+      <stop offset="100%" stop-color="#16303A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="80" y="180" fill="#20343C" font-family="'Hiragino Mincho ProN','Yu Mincho',serif" font-size="82" font-weight="700" letter-spacing="8">つながる市場</text>
+  <text x="80" y="240" fill="#20343C" font-family="sans-serif" font-size="26" opacity="0.75">川・池・海で辿る、手選りのアフィリエイト・ショーウィンドウ</text>
+  <g transform="translate(80,340)" fill="#fff" font-family="sans-serif">
+    <circle cx="60" cy="60" r="46" fill="#DCE9E8"/>
+    <text x="60" y="70" text-anchor="middle" font-size="38">🔌</text>
+    <text x="60" y="140" text-anchor="middle" fill="#20343C" font-size="18">川 / 新着</text>
+    <circle cx="220" cy="90" r="52" fill="#6FA8A0"/>
+    <text x="220" y="102" text-anchor="middle" font-size="42">🪴</text>
+    <text x="220" y="170" text-anchor="middle" fill="#20343C" font-size="18">池 / 定番</text>
+    <circle cx="400" cy="130" r="62" fill="#2E5F6B"/>
+    <text x="400" y="145" text-anchor="middle" font-size="50">🏆</text>
+    <text x="400" y="220" text-anchor="middle" fill="#20343C" font-size="18">海 / 売れ筋</text>
+    <path d="M 106 60 Q 160 40 175 82" stroke="#6FA8A0" stroke-width="3" fill="none" stroke-dasharray="6 6"/>
+    <path d="M 268 100 Q 320 100 344 118" stroke="#6FA8A0" stroke-width="3" fill="none" stroke-dasharray="6 6"/>
+  </g>
+  <text x="1120" y="600" text-anchor="end" fill="#fff" opacity="0.7" font-family="sans-serif" font-size="18">tsunagaru-ichiba.example.com</text>
+</svg>
