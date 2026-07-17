@@ -1,109 +1,109 @@
-import CatalogExplorer from "@/components/CatalogExplorer";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
-import { SEED } from "@/lib/seed";
 import { SITE } from "@/lib/site";
-import { breadcrumbSchema, faqSchema, itemListSchema, toJsonLd } from "@/lib/schema";
+import { breadcrumbSchema, toJsonLd } from "@/lib/schema";
 
-const faqItems = [
-  {
-    question: "LessFrictionは何を紹介するサイトですか？",
-    answer: "充電、収納、持ち歩き、仕事などの小さな手間を減らす道具について、選ぶ基準、向く人、向かない人、購入前の確認項目を整理する編集ガイドです。",
-  },
-  {
-    question: "掲載順は広告費で決まりますか？",
-    answer: "広告費による掲載順位の販売は行いません。課題の分かりやすさ、選び方の再現性、日常で手間を減らせる度合いを基準に編集します。",
-  },
-  {
-    question: "掲載価格は購入時も同じですか？",
-    answer: "掲載価格は調査時点の参考価格帯です。販売価格、送料、在庫、仕様は変わるため、購入前に販売先でご確認ください。",
-  },
-  {
-    question: "外部リンクから購入すると価格は上がりますか？",
-    answer: "リンクにアフィリエイト広告が含まれる場合でも、リンク経由を理由に購入価格が上がることはありません。広告を含むページでは明示します。",
-  },
-];
+export const metadata: Metadata = {
+  title: "このサイトについて・編集方針",
+  description: `${SITE.name}の運営目的、道具選びガイドの編集基準、広告・アフィリエイト、AI利用、更新方針を公開しています。`,
+  alternates: { canonical: "/about" },
+};
 
-export default function Home() {
-  const breadcrumbs = breadcrumbSchema([{ name: "ホーム", url: SITE.url }]);
+export default function AboutPage() {
+  const breadcrumbs = breadcrumbSchema([
+    { name: "ホーム", url: SITE.url },
+    { name: "このサイトについて", url: `${SITE.url}/about` },
+  ]);
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(faqSchema()) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(itemListSchema(SEED.products)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbs) }} />
       <SiteHeader />
       <main>
-        <section className="hero">
-          <div className="shell hero-grid">
-            <div className="hero-copy">
-              <p className="eyebrow">LESS EFFORT, BETTER DAYS</p>
-              <h1>暮らしの手間を、<br /><em>道具でひとつずつ</em>減らす。</h1>
-              <p className="hero-lead">
-                人気順ではなく、<strong>何が楽になるか</strong>で選ぶ。向く人・向かない人・購入前の確認項目まで、短時間で判断できる形に整理します。
-              </p>
-              <div className="hero-actions">
-                <a className="button-primary" href="#guides">減らしたい手間から探す</a>
-                <a className="button-secondary" href="#policy">選定方針を見る</a>
-              </div>
-              <dl className="hero-facts">
-                <div><dt>{SEED.products.length}</dt><dd>公開ガイド</dd></div>
-                <div><dt>広告順位</dt><dd>販売しません</dd></div>
-                <div><dt>約3分</dt><dd>判断までの目安</dd></div>
-              </dl>
-            </div>
-            <div className="hero-visual" aria-label="小さな手間を減らす4つの領域">
-              <div className="visual-orbit orbit-one"><span>充電</span></div>
-              <div className="visual-orbit orbit-two"><span>収納</span></div>
-              <div className="visual-orbit orbit-three"><span>持ち歩き</span></div>
-              <div className="visual-center"><strong>−1</strong><span>毎日の手間</span></div>
-              <p>便利を増やすより、<br />面倒を減らす。</p>
-            </div>
-          </div>
-        </section>
-
-        <div className="shell">
-          <CatalogExplorer catalog={SEED} />
-        </div>
-
-        <section className="policy-section" id="policy">
+        <header className="about-hero">
           <div className="shell">
-            <div className="section-heading light">
-              <div><p className="eyebrow">EDITORIAL POLICY</p><h2>「おすすめ」より先に、判断材料を。</h2></div>
-              <p>買うことを目的にしません。今ある物で足りるなら、その結論も含めて短く伝えます。</p>
-            </div>
-            <div className="policy-grid">
-              <article><span>01</span><h3>課題から始める</h3><p>商品名ではなく、減らしたい手間を最初に定義します。用途が曖昧なまま候補を増やしません。</p></article>
-              <article><span>02</span><h3>向かない人も書く</h3><p>万能な道具はありません。使う条件が合わないケースと、見送る基準を同じ重さで掲載します。</p></article>
-              <article><span>03</span><h3>数字の出所を曖昧にしない</h3><p>未確認の評価件数や利用実績は載せません。価格は参考帯として扱い、確認日を明示します。</p></article>
-              <article><span>04</span><h3>広告と編集を分ける</h3><p>広告費で掲載順位を変えません。アフィリエイトや提供がある場合は、該当ページで開示します。</p></article>
-            </div>
+            <nav className="breadcrumb" aria-label="パンくずリスト"><Link href="/">ホーム</Link><span aria-hidden="true"> / </span><span>このサイトについて</span></nav>
+            <p className="eyebrow">ABOUT & POLICY</p>
+            <h1>便利を増やすより、<br />面倒を減らしたい。</h1>
+            <p>
+              {SITE.name}は、毎日の小さな手間を減らす道具の「選び方」を整理する編集ガイドです。商品を多く見せるのではなく、短時間で買う・見送るを判断できる情報を目指します。
+            </p>
           </div>
-        </section>
+        </header>
 
-        <section className="how-section">
-          <div className="shell how-grid">
-            <div>
-              <p className="eyebrow">HOW TO USE</p>
-              <h2>迷ったら、この順番だけ。</h2>
-            </div>
-            <ol>
-              <li><span>1</span><div><strong>減らしたい手間を決める</strong><p>「何を買うか」ではなく「何をしなくて済むようにしたいか」から始めます。</p></div></li>
-              <li><span>2</span><div><strong>向く・向かないを確認する</strong><p>自分の利用条件が外れていたら、候補から外します。</p></div></li>
-              <li><span>3</span><div><strong>販売先で仕様を再確認する</strong><p>型番、価格、在庫、保証を確認してから判断します。</p></div></li>
-            </ol>
-          </div>
-        </section>
+        <div className="shell about-layout">
+          <nav className="about-nav" aria-label="ページ内目次">
+            <a href="#purpose">運営目的</a>
+            <a href="#standard">編集・選定基準</a>
+            <a href="#evidence">情報の確かめ方</a>
+            <a href="#advertising">広告・アフィリエイト</a>
+            <a href="#ai">AI利用</a>
+            <a href="#updates">更新・訂正</a>
+            <a href="#contact">お問い合わせ</a>
+          </nav>
 
-        <section className="faq-section">
-          <div className="shell faq-grid">
-            <div><p className="eyebrow">FAQ</p><h2>よくある質問</h2><p>運営と掲載内容について、先にお伝えしておきたいことです。</p></div>
-            <div className="faq-list">
-              {faqItems.map((item) => (
-                <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>
-              ))}
-            </div>
+          <div className="about-content">
+            <section id="purpose">
+              <h2>運営目的</h2>
+              <p>
+                探す時間、比較する時間、買い直す手間を減らすことが目的です。「売れているから」ではなく、どの条件なら役に立ち、どの条件なら不要かを先に示します。会員登録なしで閲覧できます。
+              </p>
+            </section>
+
+            <section id="standard">
+              <h2>編集・選定基準</h2>
+              <ul>
+                <li><strong>課題が明確であること：</strong>どの手間を減らす道具か、一文で説明できるテーマを扱います。</li>
+                <li><strong>選び方を再現できること：</strong>ブランド名だけでなく、寸法・規格・保証など購入前に確認できる条件を示します。</li>
+                <li><strong>不向きな条件も書くこと：</strong>向かない人、注意点、今ある物で代用できる可能性を省きません。</li>
+                <li><strong>広告で順位を変えないこと：</strong>広告費による掲載順の販売は行いません。</li>
+              </ul>
+            </section>
+
+            <section id="evidence">
+              <h2>情報の確かめ方</h2>
+              <p>
+                公開仕様、取扱説明書、メーカー情報、販売ページなど確認可能な情報を基に、一般的な選定基準として編集します。現在公開中の記事は特定商品の長期使用レビューではありません。そのため、未確認の星評価、レビュー件数、販売数、実使用期間は掲載しません。
+              </p>
+              <div className="notice-box">
+                <strong>価格と在庫について</strong>
+                <p>価格は調査時点の参考帯です。販売価格、送料、ポイント、在庫、仕様は変動するため、購入前に販売先でご確認ください。</p>
+              </div>
+            </section>
+
+            <section id="advertising">
+              <h2>広告・アフィリエイト開示</h2>
+              <p>
+                外部リンクの一部には、アフィリエイトプログラムを利用する場合があります。リンク経由で購入されると運営者に紹介料が支払われることがありますが、リンク経由を理由に読者の購入価格が上がることはありません。
+              </p>
+              <p>
+                提供品・広告掲載・タイアップがある場合は、対象ページの分かりやすい位置に明示します。報酬の有無を理由に、注意点や不向きな条件を削除しません。
+              </p>
+            </section>
+
+            <section id="ai">
+              <h2>AI利用の開示</h2>
+              <p>
+                サイトのコード、情報設計、文章の下書きや校正に生成AIを利用する場合があります。AIの出力は公開前に編集し、根拠のない体験談や評価を追加しません。自動生成した大量ページを無確認で公開する運用は行いません。
+              </p>
+            </section>
+
+            <section id="updates">
+              <h2>更新・訂正方針</h2>
+              <p>
+                仕様変更、販売終了、法令・サービス変更などを確認した場合は内容を更新します。各ページに最終確認日を表示し、重要な誤りは確認後に訂正します。最終確認日は {SITE.lastReviewed} です。
+              </p>
+            </section>
+
+            <section id="contact">
+              <h2>お問い合わせ</h2>
+              <p>
+                現時点では公開問い合わせ窓口を準備中です。公開前に専用メールアドレスまたはフォームを設置し、事実誤認、権利侵害、広告表示に関する連絡先をこの欄へ掲載します。
+              </p>
+            </section>
           </div>
-        </section>
+        </div>
       </main>
       <SiteFooter />
     </>
