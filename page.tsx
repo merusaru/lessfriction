@@ -1,109 +1,161 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { getCategory, getProductBySlug, SEED } from "@/lib/seed";
 import { SITE } from "@/lib/site";
-import { breadcrumbSchema, toJsonLd } from "@/lib/schema";
+import { breadcrumbSchema, guideSchema, toJsonLd } from "@/lib/schema";
 
-export const metadata: Metadata = {
-  title: "このサイトについて・編集方針",
-  description: `${SITE.name}の運営目的、道具選びガイドの編集基準、広告・アフィリエイト、AI利用、更新方針を公開しています。`,
-  alternates: { canonical: "/about" },
-};
+export function generateStaticParams() {
+  return SEED.products.map((product) => ({ slug: product.slug }));
+}
 
-export default function AboutPage() {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
+  if (!product) return {};
+  return {
+    title: product.title,
+    description: `${product.note} ${product.verdict}`,
+    keywords: product.keywords,
+    alternates: { canonical: `/items/${product.slug}` },
+    openGraph: {
+      type: "article",
+      title: `${product.title}｜${SITE.name}`,
+      description: product.note,
+      url: `${SITE.url}/items/${product.slug}`,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: `${product.title} — ${SITE.name}` }],
+    },
+  };
+}
+
+export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
+  if (!product) notFound();
+  const category = getCategory(product.categoryId);
+  const related = SEED.products.filter((item) => item.id !== product.id).slice(0, 3);
   const breadcrumbs = breadcrumbSchema([
     { name: "ホーム", url: SITE.url },
-    { name: "このサイトについて", url: `${SITE.url}/about` },
+    { name: category?.name ?? "道具選び", url: `${SITE.url}/#guides` },
+    { name: product.title, url: `${SITE.url}/items/${product.slug}` },
   ]);
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(guideSchema(product, category)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbs) }} />
       <SiteHeader />
       <main>
-        <header className="about-hero">
+        <header className="article-hero">
           <div className="shell">
-            <nav className="breadcrumb" aria-label="パンくずリスト"><Link href="/">ホーム</Link><span aria-hidden="true"> / </span><span>このサイトについて</span></nav>
-            <p className="eyebrow">ABOUT & POLICY</p>
-            <h1>便利を増やすより、<br />面倒を減らしたい。</h1>
-            <p>
-              {SITE.name}は、毎日の小さな手間を減らす道具の「選び方」を整理する編集ガイドです。商品を多く見せるのではなく、短時間で買う・見送るを判断できる情報を目指します。
-            </p>
+            <nav className="breadcrumb" aria-label="パンくずリスト">
+              <Link href="/">ホーム</Link><span aria-hidden="true"> / </span>
+              <Link href="/#guides">{category?.name ?? "道具選び"}</Link><span aria-hidden="true"> / </span>
+              <span>{product.shortTitle}</span>
+            </nav>
+            <div className="article-hero-grid">
+              <div>
+                <span className="article-kicker">{category?.emoji} {category?.name} ／ 選び方ガイド</span>
+                <h1>{product.title}</h1>
+                <p className="article-deck">{product.note}</p>
+                <div className="article-meta">
+                  <span>更新 {SITE.lastReviewed}</span>
+                  <span>{product.price}</span>
+                  <span>執筆 {SITE.author.name}</span>
+                </div>
+              </div>
+              <div className="article-symbol" aria-hidden="true">{product.emoji}</div>
+            </div>
           </div>
         </header>
 
-        <div className="shell about-layout">
-          <nav className="about-nav" aria-label="ページ内目次">
-            <a href="#purpose">運営目的</a>
-            <a href="#standard">編集・選定基準</a>
-            <a href="#evidence">情報の確かめ方</a>
-            <a href="#advertising">広告・アフィリエイト</a>
-            <a href="#ai">AI利用</a>
-            <a href="#updates">更新・訂正</a>
-            <a href="#contact">お問い合わせ</a>
-          </nav>
+        <div className="shell article-layout">
+          <article className="article-body">
+            <h2 id="conclusion">先に結論</h2>
+            <div className="verdict-box">
+              <span>LESSFRICTION VERDICT</span>
+              <p>{product.verdict}</p>
+            </div>
 
-          <div className="about-content">
-            <section id="purpose">
-              <h2>運営目的</h2>
+            <h2 id="problem">この道具で減らせる手間</h2>
+            <p>{product.problem}</p>
+            <p>
+              道具を増やすほど管理も増えます。まず今ある物で代用できるかを確認し、それでも繰り返し発生する手間だけを対象にすると、買った後の持て余しを減らせます。
+            </p>
+
+            <h2 id="fit">向く人・向かない人</h2>
+            <div className="fit-grid">
+              <section className="fit-box good">
+                <h3>向いている人</h3>
+                <ul>{product.bestFor.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+              <section className="fit-box caution">
+                <h3>見送ってよい人</h3>
+                <ul>{product.notFor.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+            </div>
+
+            <h2 id="check">購入前に確認すること</h2>
+            <ol className="check-list">
+              {product.checklist.map((item) => <li key={item}>{item}</li>)}
+            </ol>
+
+            <h2 id="tradeoff">良い点と注意点</h2>
+            <div className="fit-grid">
+              <section className="fit-box good">
+                <h3>期待できること</h3>
+                <ul>{product.pros.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+              <section className="fit-box caution">
+                <h3>購入前の注意</h3>
+                <ul>{product.cautions.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+            </div>
+
+            <section className="compare-link-box" id="compare">
+              <h2>条件を満たす候補を比較する</h2>
               <p>
-                探す時間、比較する時間、買い直す手間を減らすことが目的です。「売れているから」ではなく、どの条件なら役に立ち、どの条件なら不要かを先に示します。会員登録なしで閲覧できます。
+                上の確認項目をメモしてから販売先を開くと、価格だけで選びにくくなります。リンク先の検索結果には条件を満たさない商品も含まれるため、型番・仕様・保証を販売ページで再確認してください。
+              </p>
+              <a className="external-button" href={product.url} target="_blank" rel="sponsored nofollow noopener">
+                Amazonで候補を比較する <span aria-hidden="true">↗</span>
+              </a>
+              <p className="disclosure">
+                外部の販売サイトへ移動します。価格・在庫・仕様は変動します。リンクにアフィリエイト広告が含まれる場合、購入価格を変えずに運営者へ紹介料が支払われることがあります。
               </p>
             </section>
+          </article>
 
-            <section id="standard">
-              <h2>編集・選定基準</h2>
-              <ul>
-                <li><strong>課題が明確であること：</strong>どの手間を減らす道具か、一文で説明できるテーマを扱います。</li>
-                <li><strong>選び方を再現できること：</strong>ブランド名だけでなく、寸法・規格・保証など購入前に確認できる条件を示します。</li>
-                <li><strong>不向きな条件も書くこと：</strong>向かない人、注意点、今ある物で代用できる可能性を省きません。</li>
-                <li><strong>広告で順位を変えないこと：</strong>広告費による掲載順の販売は行いません。</li>
-              </ul>
-            </section>
-
-            <section id="evidence">
-              <h2>情報の確かめ方</h2>
-              <p>
-                公開仕様、取扱説明書、メーカー情報、販売ページなど確認可能な情報を基に、一般的な選定基準として編集します。現在公開中の記事は特定商品の長期使用レビューではありません。そのため、未確認の星評価、レビュー件数、販売数、実使用期間は掲載しません。
-              </p>
-              <div className="notice-box">
-                <strong>価格と在庫について</strong>
-                <p>価格は調査時点の参考帯です。販売価格、送料、ポイント、在庫、仕様は変動するため、購入前に販売先でご確認ください。</p>
-              </div>
-            </section>
-
-            <section id="advertising">
-              <h2>広告・アフィリエイト開示</h2>
-              <p>
-                外部リンクの一部には、アフィリエイトプログラムを利用する場合があります。リンク経由で購入されると運営者に紹介料が支払われることがありますが、リンク経由を理由に読者の購入価格が上がることはありません。
-              </p>
-              <p>
-                提供品・広告掲載・タイアップがある場合は、対象ページの分かりやすい位置に明示します。報酬の有無を理由に、注意点や不向きな条件を削除しません。
-              </p>
-            </section>
-
-            <section id="ai">
-              <h2>AI利用の開示</h2>
-              <p>
-                サイトのコード、情報設計、文章の下書きや校正に生成AIを利用する場合があります。AIの出力は公開前に編集し、根拠のない体験談や評価を追加しません。自動生成した大量ページを無確認で公開する運用は行いません。
-              </p>
-            </section>
-
-            <section id="updates">
-              <h2>更新・訂正方針</h2>
-              <p>
-                仕様変更、販売終了、法令・サービス変更などを確認した場合は内容を更新します。各ページに最終確認日を表示し、重要な誤りは確認後に訂正します。最終確認日は {SITE.lastReviewed} です。
-              </p>
-            </section>
-
-            <section id="contact">
-              <h2>お問い合わせ</h2>
-              <p>
-                現時点では公開問い合わせ窓口を準備中です。公開前に専用メールアドレスまたはフォームを設置し、事実誤認、権利侵害、広告表示に関する連絡先をこの欄へ掲載します。
-              </p>
-            </section>
-          </div>
+          <aside className="article-sidebar" aria-label="この記事の目次">
+            <h2>このガイドの内容</h2>
+            <nav>
+              <a href="#conclusion">先に結論</a>
+              <a href="#problem">減らせる手間</a>
+              <a href="#fit">向く人・向かない人</a>
+              <a href="#check">購入前チェック</a>
+              <a href="#tradeoff">良い点と注意点</a>
+              <a href="#compare">候補を比較</a>
+            </nav>
+            <hr />
+            <p>判断基準は編集部が作成しています。特定商品の使用レビューではありません。</p>
+          </aside>
         </div>
+
+        <section className="related-section">
+          <div className="shell">
+            <h2>ほかの手間も減らす</h2>
+            <div className="related-grid">
+              {related.map((item) => (
+                <Link className="related-card" href={`/items/${item.slug}`} key={item.id}>
+                  <span aria-hidden="true">{item.emoji}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.problem}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </>
